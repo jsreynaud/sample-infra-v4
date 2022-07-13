@@ -1,0 +1,10 @@
+{
+  "name": "sample-infra-v4",
+  "version": "4.0.0",
+  "description": "Support project for IoT platform course (ESEO)",
+  "scripts": {
+    "server": "node bin/server.js"
+  },
+  "author": "Jean-Samuel Reynaud <jeansamuel.reynaud@qowisio.com>",
+  "license": "GPLv3"
+}
