@@ -3,8 +3,12 @@
   "version": "4.0.0",
   "description": "Support project for IoT platform course (ESEO)",
   "scripts": {
-    "server": "node bin/server.js"
+    "server": "node bin/server.js",
+    "curl": "curl -d '{\"username\":\"my_username\", \"email\":\"my_email\"}' -H \"Content-Type: application/json\" -X POST http://localhost:3000/data"
   },
   "author": "Jean-Samuel Reynaud <jeansamuel.reynaud@qowisio.com>",
-  "license": "GPLv3"
+  "license": "GPLv3",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
