@@ -1,6 +1,9 @@
 const express = require('express')
 const jwt = require('jsonwebtoken');
 const app = express()
+var validate = require('jsonschema').validate;
+// Import our schemas
+const schemas = require("./schemas");
 
 const port = 3000
 const ACCESS_TOKEN_SECRET = "123456789";
@@ -12,14 +15,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /**
- * Define the main function for mail module
+ * login action for /login route
+ * 
+ * @param {*} req from express
+ * @param {*} res from express
  */
-function run() {
-    app.get('/', (req, res) => {
-        res.send('Hello World!')
-    })
-
-    app.post('/login', (req, res) => {
+function login(req, res) {
+    let validation = validate(req.body, schemas.login_schema);
+    // Check result is valid
+    if (validation.valid) {
         // Detect if login and password are correct
         if (req.body.login && req.body.password &&
             req.body.login === 'test' && req.body.password === 'pass') {
@@ -29,9 +33,22 @@ function run() {
         } else {
             res.status(401).send({ code: -1, message: "Invalid login or password" })
         }
-    })
+    } else {
+        res.status(400).send({ code: -1, message: "Invalid data schema" })
+    }
 
-    app.post('/pushdata', (req, res) => {
+}
+
+/**
+ * pushdata action for /pushdata route
+ * 
+ * @param {*} req from express
+ * @param {*} res from express
+ * @returns 
+ */
+function pushdata(req, res) {
+    let validation = validate(req.body, schemas.postdata_schema);
+    if (validation.valid) {
         if (req.body.token && req.body.data) {
             try {
                 let result = jwt.verify(req.body.token, ACCESS_TOKEN_SECRET)
@@ -44,27 +61,59 @@ function run() {
         } else {
             res.status(401).send({ code: -1, message: "Invalid data" })
         }
-    });
+    } else {
+        res.status(400).send({ code: -1, message: "Invalid data schema" })
+    }
+}
 
-    app.get('/data', (req, res) => {
-        res.send('You want access data ?')
+var action_iter = 0;
+const action_array = [{ type: "print", data: "Bonjour" },
+{ type: "print", data: "tout" },
+{ type: "print", data: "le" },
+{ type: "print", data: "monde" },
+{ type: "end" },
+];
+
+
+function pull(req, res) {
+    let validation = validate(req.body, schemas.pull_schema);
+    if (validation.valid) {
+        // Check JWT validity
+        jwt.verify(req.body.token, ACCESS_TOKEN_SECRET, function (err, decoded) {
+            if (err) { // There is an error: invalid jwt ...
+                res.status(401).send({ "error": -1, "message": "JWT error" });
+            } else {
+                res.status(201).send({
+                    code: 0, message: "ok", data: action_array[action_iter++ % action_array.length]
+                });
+            }
+        });
+    } else {
+        res.status(400).send({ code: -1, message: "Invalid data schema" })
+    }
+}
+
+
+/**
+ * Define the main function for mail module
+ */
+function run() {
+    app.get('/', (req, res) => {
+        res.send('Hello World!')
     })
 
-    app.post('/data', (req, res) => {
-        if (req.body.username && req.body.email) {
-            const key1 = req.body.username;
-            const key2 = req.body.email;
-            // Reformat the data for testing...
-            res.send({
-                'key1': key1,
-                'key2': key2
-            });
-        } else {
-            // Fallback
-            console.log(req.body);
-            res.send("Invalid data");
-        }
+    app.post('/login', (req, res) => {
+        login(req, res);
+    })
+
+    app.post('/pushdata', (req, res) => {
+        pushdata(req, res);
     });
+
+    app.post('/pull', (req, res) => {
+        pull(req, res);
+    });
+
 
     app.get("/*", (req, res) => {
         res.status(404).send({ "code": -1, "message": "Invalid URL" });
