@@ -5,6 +5,7 @@ const parser = new ArgumentParser({ description: 'Client for the backend' });
 parser.add_argument('-l', '--login', { help: 'Login to use', required: true });
 parser.add_argument('-p', '--password', { help: 'Password to use', required: true });
 parser.add_argument('-t', '--target', { help: 'Target to use', type: 'int', choices: [0, 1, 2], required: true });
+parser.add_argument('-c', '--city', { help: 'City to use', required: true });
 
 let args = parser.parse_args();
 
@@ -34,7 +35,7 @@ let target = args.target;
 POST({ login: login, password: password }, "/login", d => {
     console.log(d);
     let token = d.token;
-    POST({ token: token, data: { temperature: 21.5, position: 'Angers' }, target: target }, "/pushdata", d => {
+    POST({ token: token, data: { temperature: (Date.now() / 1000) % 31, position: args.city }, target: target }, "/pushdata", d => {
         console.log(d);
     });
 });

@@ -5,7 +5,10 @@
   "scripts": {
     "backend": "node bin/backend.js",
     "router": "node bin/router.js",
-    "client": "node bin/client.js -l test -p pass -t 0",
+    "client": "node bin/client.js -l test -p pass -t 0 -c Angers",
+    "client-paris": "node bin/client.js -l test -p pass -t 0 -c Paris",
+    "publishToRedis": "node bin/publishToRedis.js",
+    "rest-temp": "node bin/rest_temp.js",
     "display-queue0": "node bin/display.js -q 0",
     "display-queue1": "node bin/display.js -q 1",
     "display-queue2": "node bin/display.js -q 2",
@@ -20,7 +23,8 @@
     "rabbitmq-sender": "node bin/rabbitmq-sender.js",
     "redis-docker": "docker run -it --rm --name redis -p 6379:6379 redis",
     "redis-test-sync": "node bin/redis.js",
-    "redis-test-async": "node bin/redis.js -a"
+    "redis-test-async": "node bin/redis.js -a",
+    "check-redis": "node bin/check_redis.js -c angers"
   },
   "author": "Jean-Samuel Reynaud <jeansamuel.reynaud@qowisio.com>",
   "license": "GPLv3",
