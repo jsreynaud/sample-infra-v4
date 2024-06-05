@@ -1,4 +1,15 @@
 const axios = require('axios');
+const { ArgumentParser } = require('argparse');
+
+const parser = new ArgumentParser({ description: 'Client for the backend' });
+parser.add_argument('-l', '--login', { help: 'Login to use', required: true });
+parser.add_argument('-p', '--password', { help: 'Password to use', required: true });
+parser.add_argument('-t', '--target', { help: 'Target to use', type: 'int', choices: [0, 1, 2], required: true });
+
+let args = parser.parse_args();
+
+
+
 
 function POST(jdata, url, f) {
     axios.post('http://localhost:3000' + url, jdata)
@@ -14,36 +25,16 @@ function POST(jdata, url, f) {
 
 }
 
-function apply_command(action) {
-    console.log("Action", action);
-    if (action.type == "print") {
-        console.log(action.data);
-    } else if (action.type == "end") {
-        console.log("End");
-        process.exit(0);
-    }
-}
-
 // Setting default value
-let login = "test";
-let password = "pass";
-// If some parameters are there, use them...
-if (process.argv.length > 3) {
-    login = process.argv[2];
-    password = process.argv[3];
-}
+let login = args.login;
+let password = args.password;
+let target = args.target;
 
 /* Doing POST ... Imbricate them*/
 POST({ login: login, password: password }, "/login", d => {
     console.log(d);
     let token = d.token;
-    POST({ token: token, data: 'ok' }, "/pushdata", d => {
+    POST({ token: token, data: { temperature: 21.5, position: 'Angers' }, target: target }, "/pushdata", d => {
         console.log(d);
-        setInterval(() => {
-            POST({ token: token }, "/pull", d => {
-                console.log(d);
-                apply_command(d.data);
-            });
-        }, 3000);
     });
 });

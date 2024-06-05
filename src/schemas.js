@@ -27,9 +27,10 @@ const postdata_schema = {
             "type": "string"
         },
         "data": {
-        }
+        },
+        "target": { "type": "integer" }
     },
-    "required": ["token", "data"],
+    "required": ["token", "data", "target"],
     "additionalProperties": false
 };
 
